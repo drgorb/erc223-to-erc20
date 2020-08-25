@@ -59,4 +59,15 @@ contract('Erc223Wrapper', function (accounts) {
     assert.equal((await wrapper.totalSupply()).toString(), toBN('1000000000000000000').minus('100000000000000000').toString())
   })
 
+  it('does not allow another token to be sent', async () => {
+    const otherErc223 = await Erc223.new('test token', 'TST')
+    await otherErc223.mint(accounts[0], '100000000000000000000')
+    try {
+      await otherErc223.transfer(wrapper.address, '1000000000000000000')
+      assert.fail('exception must be thrown')
+    } catch (e) {
+      assert.equal(e.message, 'Returned error: VM Exception while processing transaction: revert only the wrapped tokens can be sent -- Reason given: only the wrapped tokens can be sent.')
+    }
+  })
+
 })
